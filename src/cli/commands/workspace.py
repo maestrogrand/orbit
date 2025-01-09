@@ -4,7 +4,7 @@ from pathlib import Path
 
 app = typer.Typer(help="Manage named workspaces")
 
-WORKSPACE_DIR = Path.home() / ".nimbus" / "workspaces"
+WORKSPACE_DIR = Path.home() / ".orbit" / "workspaces"
 WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
 
