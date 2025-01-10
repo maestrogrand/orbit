@@ -1,5 +1,4 @@
 # Orbit AI Ops Assistant
-#
 Welcome to **Orbit AI Ops Assistant**, a powerful, terminal-based DevOps assistant designed to simplify and unify your workflows. Orbit integrates seamlessly with multiple tools and services to empower teams with intelligent, context-aware automation and suggestions.
 
 ---
