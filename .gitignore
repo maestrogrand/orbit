@@ -49,3 +49,5 @@ Thumbs.db
 # FastAPI specific
 staticfiles/
 media/
+
+orbit_service.pid
