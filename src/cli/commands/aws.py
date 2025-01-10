@@ -1,6 +1,7 @@
 import typer
 import boto3
 from botocore.exceptions import BotoCoreError, NoCredentialsError
+from botocore.session import Session
 
 app = typer.Typer(help="Manage AWS accounts and resources")
 
@@ -24,8 +25,6 @@ def list_profiles():
     List available AWS profiles from the AWS credentials file.
     """
     try:
-        from botocore.session import Session
-
         profiles = Session().available_profiles
         if profiles:
             typer.echo("Available AWS profiles:")

@@ -4,6 +4,7 @@ from cli.commands.terraform import app
 
 runner = CliRunner()
 
+
 def test_terraform_init(mocker):
     mock_subprocess = mocker.patch("subprocess.run")
     mock_subprocess.return_value.stdout = "Terraform initialized successfully."

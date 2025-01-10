@@ -4,13 +4,16 @@ from cli.commands.workspace import app
 
 runner = CliRunner()
 
+
 def test_workspace_create(tmp_path):
     workspace_name = "test_workspace"
     result = runner.invoke(app, ["create", workspace_name])
     assert result.exit_code == 0
     assert f"Workspace '{workspace_name}' created successfully." in result.output
 
-def test_workspace_list_empty(tmp_path):
+
+def test_workspace_list_empty(tmp_path, mocker):
+    mocker.patch("cli.commands.workspace.WORKSPACE_DIR", tmp_path)
     result = runner.invoke(app, ["list"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert "No workspaces found." in result.output
