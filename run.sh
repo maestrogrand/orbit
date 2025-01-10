@@ -7,23 +7,29 @@ LOG_FILE="orbit_service.log"
 PID_FILE="orbit_service.pid"
 EGG_INFO_DIR="src/Orbit_ai_ops_assistant.egg-info"
 
-start_service() {
-    if [ -f "$PID_FILE" ]; then
-        echo "Service is already running. PID: $(cat $PID_FILE)"
-        exit 1
+is_service_running() {
+    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
+        return 0
+    else
+        return 1
     fi
+}
+
+start_service() {
+    if is_service_running; then
+        echo "Service is already running. PID: $(cat $PID_FILE)"
+        return 0
+    fi
+
+    echo "Starting service..."
 
     if [ ! -d "$VENV_DIR" ]; then
         echo "Creating virtual environment..."
         python3 -m venv "$VENV_DIR"
-    else
-        echo "Virtual environment already exists."
     fi
 
-    echo "Activating virtual environment..."
-    source "$VENV_DIR/bin/activate"
-
     echo "Installing dependencies..."
+    source "$VENV_DIR/bin/activate"
     pip install --upgrade pip
     pip install -r requirements.txt
 
@@ -31,103 +37,96 @@ start_service() {
     pip install -e .
 
     echo "Verifying CLI tool installation..."
-    if command -v orbit &>/dev/null; then
-        echo "Orbit CLI is installed successfully."
-    else
+    if ! command -v orbit &>/dev/null; then
         echo "CLI tool 'Orbit' is not installed. Check your setup."
+        deactivate
         exit 1
     fi
 
-    echo "Starting the virtual environment service..."
     nohup bash -c "source $VENV_DIR/bin/activate && tail -f /dev/null" >"$LOG_FILE" 2>&1 &
     echo $! >"$PID_FILE"
 
-    echo "Service started and running in the background. Logs: $LOG_FILE"
-    echo "Use 'orbit' in any terminal window. Stop with './run.sh stop'."
+    echo "Service started. Logs: $LOG_FILE"
 }
 
 stop_service() {
-    if [ ! -f "$PID_FILE" ]; then
+    if is_service_running; then
+        echo "Stopping service..."
+        kill $(cat "$PID_FILE") || true
+        rm -f "$PID_FILE"
+    else
         echo "Service is not running."
-        exit 1
     fi
 
-    echo "Stopping the service..."
-    PID=$(cat "$PID_FILE")
-    kill "$PID" || true
-    rm -f "$PID_FILE"
-
-    echo "Cleaning up virtual environment and temporary files..."
+    echo "Cleaning up..."
     if [ -d "$VENV_DIR" ]; then
         rm -rf "$VENV_DIR"
-        echo "Virtual environment deleted."
     fi
 
     if [ -d "$EGG_INFO_DIR" ]; then
         rm -rf "$EGG_INFO_DIR"
-        echo "Egg-info directory deleted."
     fi
 
     if [ -f "$LOG_FILE" ]; then
         rm -f "$LOG_FILE"
-        echo "Log file deleted."
     fi
 
     find . -type f -name "*.pyc" -delete
     find . -type d -name "__pycache__" -exec rm -rf {} +
-    echo "Cleanup complete."
+    find . -type d -name ".pytest_cache" -exec rm -rf {} +
+    find . -type d -name "$VENV_DIR*" -exec rm -rf {} +
+    find /tmp -type f -name "tmp*.py" -delete
+
+    echo "Service stopped and cleanup complete."
+}
+
+restart_service() {
+    stop_service
+    start_service
 }
 
 lint_code() {
-    if [ ! -d "$VENV_DIR" ]; then
-        echo "Virtual environment not found. Please start the service first."
-        exit 1
+    if ! is_service_running; then
+        start_service
     fi
 
-    echo "Activating virtual environment..."
+    echo "Running code linting..."
     source "$VENV_DIR/bin/activate"
-
-    echo "Running black for code formatting check..."
     black --check src
-
-    echo "Running flake8 for linting check..."
     flake8 src
+    echo "Linting complete."
 
-    echo "Linting complete. No issues found."
+    stop_service
 }
 
 format_code() {
-    if [ ! -d "$VENV_DIR" ]; then
-        echo "Virtual environment not found. Please start the service first."
-        exit 1
+    if ! is_service_running; then
+        start_service
     fi
 
-    echo "Activating virtual environment..."
+    echo "Running code formatting..."
     source "$VENV_DIR/bin/activate"
-
-    echo "Running black for auto-formatting..."
     black src tests
-    echo "Code auto-formatting complete."
+    echo "Formatting complete."
+
+    stop_service
 }
 
-
 test_app() {
-    if [ ! -d "$VENV_DIR" ]; then
-        echo "Virtual environment not found. Please start the service first."
-        exit 1
+    if ! is_service_running; then
+        start_service
     fi
 
-    echo "Activating virtual environment..."
+    echo "Running tests..."
     source "$VENV_DIR/bin/activate"
-
-    echo "Running tests with pytest..."
     pytest
+    echo "Tests complete."
 
-    echo "Testing complete."
+    stop_service
 }
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 {start|stop|lint|format|test}"
+    echo "Usage: $0 {start|stop|restart|lint|format|test}"
     exit 1
 fi
 
@@ -137,6 +136,9 @@ start)
     ;;
 stop)
     stop_service
+    ;;
+restart)
+    restart_service
     ;;
 lint)
     lint_code
@@ -149,7 +151,7 @@ test)
     ;;
 *)
     echo "Invalid argument: $1"
-    echo "Usage: $0 {start|stop|lint|format|test}"
+    echo "Usage: $0 {start|stop|restart|lint|format|test}"
     exit 1
     ;;
 esac
