@@ -15,10 +15,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Debug Environment
+      - name: Clear Cache
         run: |
-          echo "Available Python Versions:"
-          ls /opt/hostedtoolcache/Python
+          sudo rm -rf ~/.cache/pip
+          sudo rm -rf .venv
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -54,10 +54,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Debug Environment
+      - name: Clear Cache
         run: |
-          echo "Available Python Versions:"
-          ls /opt/hostedtoolcache/Python
+          sudo rm -rf ~/.cache/pip
+          sudo rm -rf .venv
 
       - name: Set up Python
         uses: actions/setup-python@v4
