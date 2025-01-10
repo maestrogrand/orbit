@@ -6,6 +6,7 @@ app = typer.Typer(help="Manage named workspaces")
 
 WORKSPACE_DIR = Path.home() / ".orbit" / "workspaces"
 WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
+CURRENT_WORKSPACE_FILE = WORKSPACE_DIR / "current_workspace.txt"
 
 
 def load_workspaces():
@@ -33,6 +34,24 @@ def delete_workspace_file(name: str):
         workspace_file.unlink()
 
 
+def set_current_workspace(name: str):
+    """
+    Set the current workspace in a text file.
+    """
+    with CURRENT_WORKSPACE_FILE.open("w") as file:
+        file.write(name)
+
+
+def get_current_workspace():
+    """
+    Get the current workspace from the text file.
+    """
+    if CURRENT_WORKSPACE_FILE.exists():
+        with CURRENT_WORKSPACE_FILE.open("r") as file:
+            return file.read().strip()
+    return None
+
+
 @app.command()
 def create(name: str):
     """
@@ -57,6 +76,7 @@ def switch(name: str):
     if name not in workspaces:
         typer.echo(f"Workspace '{name}' does not exist.")
         raise typer.Exit(code=1)
+    set_current_workspace(name)
     typer.echo(f"Switched to workspace '{name}'.")
 
 
