@@ -73,12 +73,14 @@ Define and manage environments with ease:
 
 Simplify complex pipelines with YAML workflows:
 
-`workflows:
+```yaml
+workflows
   deploy-infra:
     - aws: switch dev-account
     - tf: apply
     - k8s: switch prod-cluster
     - helm: deploy app-release`
+```
 
 ### AI-Driven Insights
 
@@ -115,7 +117,7 @@ Simplify complex pipelines with YAML workflows:
 
 ## Repository Structure
 
-`Orbit-ai-ops-assistant/
+```bash
 ├── .github/                  # CI/CD workflows
 ├── docs/                     # Project documentation
 ├── src/                      # Source code
@@ -128,6 +130,7 @@ Simplify complex pipelines with YAML workflows:
 ├── setup.py                  # Installation script
 ├── README.md                 # High-level project overview
 └── LICENSE                   # License information`
+```
 
 ---
 
