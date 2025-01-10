@@ -111,8 +111,23 @@ format_code() {
     echo "Code auto-formatting complete."
 }
 
+test_app() {
+    if [ ! -d "$VENV_DIR" ]; then
+        echo "Virtual environment not found. Please start the service first."
+        exit 1
+    fi
+
+    echo "Activating virtual environment..."
+    source "$VENV_DIR/bin/activate"
+
+    echo "Running tests with pytest..."
+    pytest
+
+    echo "Testing complete."
+}
+
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 {start|stop|lint|format}"
+    echo "Usage: $0 {start|stop|lint|format|test}"
     exit 1
 fi
 
@@ -129,9 +144,12 @@ lint)
 format)
     format_code
     ;;
+test)
+    test_app
+    ;;
 *)
     echo "Invalid argument: $1"
-    echo "Usage: $0 {start|stop|lint|format}"
+    echo "Usage: $0 {start|stop|lint|format|test}"
     exit 1
     ;;
 esac
