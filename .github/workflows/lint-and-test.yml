@@ -9,55 +9,73 @@ on:
 jobs:
   lint:
     name: Lint and Format Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Clear Cache
+        run: |
+          sudo rm -rf ~/.cache/pip
+          sudo rm -rf .venv
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.10
+          check-latest: true
+
+      - name: Verify Python Version
+        run: python --version
 
       - name: Install Dependencies
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
+          python3.10 -m venv .venv
+          . .venv/bin/activate
           pip install --upgrade pip
           pip install black flake8
 
       - name: Run Black for Formatting Check
         run: |
-          source .venv/bin/activate
+          . .venv/bin/activate
           black --check src tests
 
       - name: Run Flake8 for Linting
         run: |
-          source .venv/bin/activate
+          . .venv/bin/activate
           flake8 src tests
 
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Clear Cache
+        run: |
+          sudo rm -rf ~/.cache/pip
+          sudo rm -rf .venv
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.10
+          check-latest: true
+
+      - name: Verify Python Version
+        run: python --version
 
       - name: Install Dependencies
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
+          python3.10 -m venv .venv
+          . .venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run Tests with Pytest
         run: |
-          source .venv/bin/activate
+          . .venv/bin/activate
           pytest
