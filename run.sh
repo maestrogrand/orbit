@@ -106,10 +106,10 @@ format_code() {
     source "$VENV_DIR/bin/activate"
 
     echo "Running black for auto-formatting..."
-    black src
-
+    black src tests
     echo "Code auto-formatting complete."
 }
+
 
 test_app() {
     if [ ! -d "$VENV_DIR" ]; then
