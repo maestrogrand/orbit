@@ -78,8 +78,41 @@ stop_service() {
     echo "Cleanup complete."
 }
 
+lint_code() {
+    if [ ! -d "$VENV_DIR" ]; then
+        echo "Virtual environment not found. Please start the service first."
+        exit 1
+    fi
+
+    echo "Activating virtual environment..."
+    source "$VENV_DIR/bin/activate"
+
+    echo "Running black for code formatting check..."
+    black --check src
+
+    echo "Running flake8 for linting check..."
+    flake8 src
+
+    echo "Linting complete. No issues found."
+}
+
+format_code() {
+    if [ ! -d "$VENV_DIR" ]; then
+        echo "Virtual environment not found. Please start the service first."
+        exit 1
+    fi
+
+    echo "Activating virtual environment..."
+    source "$VENV_DIR/bin/activate"
+
+    echo "Running black for auto-formatting..."
+    black src
+
+    echo "Code auto-formatting complete."
+}
+
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 {start|stop}"
+    echo "Usage: $0 {start|stop|lint|format}"
     exit 1
 fi
 
@@ -90,9 +123,15 @@ start)
 stop)
     stop_service
     ;;
+lint)
+    lint_code
+    ;;
+format)
+    format_code
+    ;;
 *)
     echo "Invalid argument: $1"
-    echo "Usage: $0 {start|stop}"
+    echo "Usage: $0 {start|stop|lint|format}"
     exit 1
     ;;
 esac
