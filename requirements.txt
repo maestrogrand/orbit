@@ -1,0 +1,11 @@
+# Core dependencies
+typer[all]
+boto3
+pyyaml
+rich
+
+# Development dependencies
+pytest
+pytest-mock
+black
+flake8
