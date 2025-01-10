@@ -15,10 +15,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Clear Cache
+      - name: Clear Python Cache
         run: |
           sudo rm -rf ~/.cache/pip
+          sudo rm -rf ~/.pyenv
           sudo rm -rf .venv
+
+      - name: List Available Python Versions
+        run: ls /opt/hostedtoolcache/Python
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -54,10 +58,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Clear Cache
+      - name: Clear Python Cache
         run: |
           sudo rm -rf ~/.cache/pip
+          sudo rm -rf ~/.pyenv
           sudo rm -rf .venv
+
+      - name: List Available Python Versions
+        run: ls /opt/hostedtoolcache/Python
 
       - name: Set up Python
         uses: actions/setup-python@v4
